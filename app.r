@@ -53,7 +53,7 @@ shinyApp(
                  tabsetPanel(
                    tabPanel("Significant genes/Patient",
                             h4("Heatmap"),
-                            tableOutput(outputId = "tester9")
+                            tableOutput(outputId = "tester4")
                             # downloadButton(outputId = "down", label = "Download the plot")
                    ),
                    tabPanel("Gene Frequency in Patients"),
@@ -169,6 +169,12 @@ shinyApp(
     output$tester9 <- renderTable({
       if(is.null(input$fileB1)){return()}
       input$fileB1
+    })
+    
+    output$tester4 <- renderTable({
+      if(is.null(input$fileB1)){return()}
+      mat4 = as.matrix(data())
+      mat4
     })
     
   }
