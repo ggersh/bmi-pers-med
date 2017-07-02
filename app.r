@@ -17,7 +17,7 @@ shinyApp(
                  ),
                  sliderInput("slider", "Enter your alpha value:", 0,.1, .05, .005),
                  HTML('<script type="text/javascript">
-                  $(document).ready(function() {
+                      $(document).ready(function() {
                       $("#file").click(function() {
                       $("#plot").text("Loading...");
                       });
@@ -34,7 +34,7 @@ shinyApp(
                    )
                  )
                )
-      ),
+               ),
       tabPanel("Paired",
                sidebarPanel(
                  fileInput("file1", "Data1:"),
@@ -43,27 +43,27 @@ shinyApp(
                )),
       tabPanel("Banked",
                sidebarPanel(
-                 fileInput("file1", "Test Data:"),
+                 fileInput("fileB1", "Test Data:"),
                  helpText("AND"),
-                 fileInput("file2", "Comparison Data:"),
+                 fileInput("fileB2", "Comparison Data:"),
                  helpText("OR"),
-                 fileInput("file3", "Banked Object:")
+                 fileInput("fileB3", "Banked Object:")
                ),
                mainPanel(
                  tabsetPanel(
-                   tabPanel("Significant genes/Patient"
-                            # h4("Heatmap"),
-                            # plotOutput(outputId = "plot"),
+                   tabPanel("Significant genes/Patient",
+                            h4("Heatmap"),
+                            tableOutput(outputId = "tester9")
                             # downloadButton(outputId = "down", label = "Download the plot")
                    ),
                    tabPanel("Gene Frequency in Patients"),
                    tabPanel("Network Graph")
                  )
                ))
-    )
+  )
   ),
   server = function(input, output) {
-    
+    # PILOT
     data <- reactive({
       file1 <- input$file
       if(is.null(file1)){return()}
@@ -82,22 +82,22 @@ shinyApp(
       RN = rownames(mat1)
       
       a = pilotStat(mat1)
-     
+      
       
       n = dim(mat1)[1]
       s = dim(mat1)[2]
-
+      
       temp.means  = unname(rowMeans(mat1))
       temp.sd = rowSds(mat1)
-
+      
       loess.model = loess(temp.sd ~ temp.means)
       sdEst = predict(loess.model)
-
+      
       nuValsPilot = nuValsAnova(matrix = mat1, sd = sdEst, n)
-
-
+      
+      
       pValsPilot = nuToPValPilot(mat1,n,s,temp.means,nuValsPilot)
-    
+      
       
       finStep(pValsPilot, pvalnew, RN, mat1)
       
@@ -122,7 +122,7 @@ shinyApp(
       sdEst = predict(loess.model)
       
       nuValsPilot = nuValsAnova(matrix = mat1, sd = sdEst, n)
-  
+      
       pValsPilot = nuToPValPilot(mat1,n,s,temp.means,nuValsPilot)
       
       finStep(pValsPilot, pvalnew, RN, mat1)
@@ -156,8 +156,20 @@ shinyApp(
         
         finStep(pValsPilot, pvalnew, RN, mat1)
       })
-      
+    # END PILOT
+    # BANKED
     
+    
+    data <- reactive({
+      fileB1 <- input$file
+      if(is.null(fileB1)){return()}
+      read.table(file=fileB1$datapath, sep = ',', header = TRUE, row.names = 1)
+    })
+    
+    output$tester9 <- renderTable({
+      if(is.null(input$fileB1)){return()}
+      input$fileB1
+    })
     
   }
-)
+  )
